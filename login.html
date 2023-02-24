@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="SetUser.js"></script>
+  </head>
+  <body>
+    <h4 class="text-blue text-center font-weight-bold" style="font-size: 20px">
+      Login
+    </h4>
+
+    <div class="container">
+      <br />
+
+      <div class="col-lg-5 m-auto d-block">
+        <form
+          id="form"
+          role="form"
+          autocomplete="off"
+          onsubmit="validation()"
+          class="bg-light"
+        >
+          <div class="form-group">
+            <label for="user" class="font-weight-regular"> Email Id </label>
+            <input
+              type="text"
+              name="email"
+              class="form-control"
+              id="user"
+              autocomplete="off"
+              required
+            />
+            <span id="username" class="text-danger font-weight-regular"> </span>
+          </div>
+
+          <div class="form-group">
+            <label class="font-weight-regular"> Password </label>
+            <input
+              type="password"
+              name="pass"
+              class="form-control"
+              id="pass"
+              autocomplete="off"
+              required
+            />
+            <span id="passwords" class="text-danger font-weight-regular">
+            </span>
+          </div>
+
+          <input
+            type="submit"
+            name="submit"
+            value="Submit"
+            class="btn btn-success"
+            autocomplete="off"
+          />&emsp;&emsp;&emsp;&emsp; Did not have an account?
+          <a href="signup.html">SignUp</a>
+        </form>
+
+        <br /><br />
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      function validation() {
+        event.preventDefault();
+        const data = new FormData(event.target);
+        const pass = data.get("pass");
+        const emails = data.get("email");
+
+        if (user == "") {
+          document.getElementById("username").innerHTML =
+            " ** Please fill the username field";
+          return false;
+        }
+        if (user.length <= 2 || user.length > 20) {
+          document.getElementById("username").innerHTML =
+            " ** Username lenght must be between 2 and 20";
+          return false;
+        }
+        if (!isNaN(user)) {
+          document.getElementById("username").innerHTML =
+            " ** only characters are allowed";
+          return false;
+        }
+
+        if (pass == "") {
+          document.getElementById("passwords").innerHTML =
+            " ** Please fill the password field";
+          return false;
+        }
+
+        //userArray
+
+        // let matchFound = false;
+        // for (let i = 0; i < userArray.length; i++) {
+        //   if (
+        //     userArray[i].Email === emails &&
+        //     userArray[i].Password === pass
+        //   ) {
+        //     // Match found, set the flag to true and break the loop
+        //     matchFound = true;
+        //     break;
+        //   }
+        // }
+
+        // // Check if a match was found and show appropriate message
+        // if (matchFound) {
+        //   // Match found, do something (e.g. redirect to a new page)
+
+        // } else {
+        //   // No match found, show error message
+        //   document.getElementById("username").innerHTML =
+        //     "Invalid email or password";
+        // }
+
+        let idb = indexedDB.open("MyDatabase");
+        idb.onsuccess = function () {
+          let db = idb.result;
+          let tx = db.transaction("users", "readwrite");
+          let myObjectStore = tx.objectStore("users");
+          let requests = myObjectStore.openCursor();
+          console.log("here logic starts2");
+
+          requests.onsuccess = function () {
+            let cursor = requests.result;
+
+            if (cursor) {
+              if (
+                cursor.value.Email === emails &&
+                cursor.value.Password === pass &&
+                cursor.value.isAdmin == "false"
+              ) {
+                console.log("hi@1");
+                if (cursor.value.User != "admi") {
+                  localStorage.removeItem("user-id");
+                  localStorage.setItem("user-id", cursor.value.id);
+                }
+                alert("Login Successful!!!");
+                window.location.href = "index.html";
+              } else if (
+                //admin
+                cursor.value.Email === emails &&
+                cursor.value.Password === pass &&
+                cursor.value.isAdmin == "true"
+              ) {
+                alert("Login Successful!!!");
+                window.location.href = "Admin.html";
+              } else {
+                alert("INVALID CREDENTIALS");
+                console.log("hi from else");
+                cursor.continue();
+              }
+            }
+          };
+        };
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+  <link rel="stylesheet" href="./styles/chart.css" />
+  <link rel="stylesheet" href="./styles/index.css" />
+  <link rel="stylesheet" href="./styles/navbar.css" />
+
+  <style>
+    .Items {
+      margin-top: 50px;
+    }
+
+    .Items ul {
+      display: flex;
+      flex-wrap: wrap;
+      padding-left: 0;
+    }
+
+    .Items ul li {
+      list-style: none;
+      flex: 0 0 33.333333%;
+    }
+  </style>
+  <body>
+    <div class="navbar">
+      <h1>CarLelo</h1>
+      <div class="rnav">
+        <div class="fbo"><a href="faq.html">FAQs</a></div>
+        <div class="fbo"><a href="AddCar.html">Add Your Car</a></div>
+        <div class="fbo"><a href="Stats.html">Stats</a></div>
+        <div class="fbo">
+          <a href="login.html">Login</a> <a href="signup.html"> Signup</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="Items">
+      <ul>
+        <li>
+          <canvas id="myChart1" style="width: 50%; max-width: 400px"></canvas>
+        </li>
+        <li>
+          <canvas id="myChart2" style="width: 50%; max-width: 400px"></canvas>
+        </li>
+        <li>
+          <canvas id="myChart3" style="width: 50%; max-width: 400px"></canvas>
+        </li>
+        <li>
+          <canvas id="myChart4" style="width: 50%; max-width: 400px"></canvas>
+        </li>
+        <li>
+          <canvas id="myChart5" style="width: 50%; max-width: 400px"></canvas>
+        </li>
+      </ul>
+    </div>
+
+    <div id="days" class="bsdnote"></div>
+    <div id="averageFare" class="bsdnote orange"></div>
+
+    <script>
+      let idb = indexedDB.open("MyDatabase");
+
+      let AverageDays = 0;
+      let AverageFare = 0;
+
+      let CarsBooked = [];
+
+      let typeCounts = [];
+      let fuelTypeCounts = [];
+      let typeOfTransmissionCounts = [];
+      let locationCount = [];
+
+      let UserBookings = [];
+
+      let countArray = [];
+      let labelName=[];
+
+      idb.onsuccess = function () {
+
+        let db = idb.result;
+        let tx = db.transaction("bookings", "readwrite");
+        let myObjectStore = tx.objectStore("bookings");
+        let requests = myObjectStore.openCursor();
+        
+        requests.onsuccess = function () {
+          // console.log("sucess!")
+          let cursor = requests.result;
+          if (cursor) {
+            CarsBooked.push(cursor.value);
+            cursor.continue();
+          }
+          // console.log(CarsBooked);
+          let sumOfDays = 0;
+          for (let i = 0; i < CarsBooked.length; i++) {
+            sumOfDays += parseInt(CarsBooked[i].Days);
+          }
+          AverageDays = sumOfDays / CarsBooked.length;
+          // console.log(AverageDays);
+          document.getElementById("days").innerHTML =
+            "Average Days Per Booking! " + AverageDays.toFixed(2);
+
+          let Fare = 0;
+          for (let i = 0; i < CarsBooked.length; i++) {
+            Fare += parseInt(CarsBooked[i].fare);
+          }
+
+          AverageFare = Fare / CarsBooked.length;
+          document.getElementById("averageFare").innerHTML =
+            "Average Fare Per Booking! " + AverageFare.toFixed(2) + " Rs";
+
+          typeCounts = CarsBooked.reduce(function (acc, curr) {
+            if (acc[curr.Type]) {
+              acc[curr.Type] = ++acc[curr.Type];
+            } else {
+              acc[curr.Type] = 1;
+            }
+            return acc;
+          }, {});
+
+          fuelTypeCounts = CarsBooked.reduce(function (acc, curr) {
+            if (acc[curr.FuelType]) {
+              acc[curr.FuelType] = ++acc[curr.FuelType];
+            } else {
+              acc[curr.FuelType] = 1;
+            }
+            return acc;
+          }, {});
+
+          typeOfTransmissionCounts = CarsBooked.reduce(function (acc, curr) {
+            if (acc[curr.typeOfTransmission]) {
+              acc[curr.typeOfTransmission] = ++acc[curr.typeOfTransmission];
+            } else {
+              acc[curr.typeOfTransmission] = 1;
+            }
+
+            return acc;
+          }, {});
+
+          locationCount = CarsBooked.reduce(function (acc, curr) {
+            if (acc[curr.location]) {
+              acc[curr.location] = ++acc[curr.location];
+            } else {
+              acc[curr.location] = 1;
+            }
+
+            return acc;
+          }, {});
+
+          UserBookings = CarsBooked.reduce((acc, curr) => {
+            if (acc[curr.BookingId]) {
+              acc[curr.BookingId].push(curr);
+            } else {
+              acc[curr.BookingId] = [curr];
+            }
+            return acc;
+          }, {});
+
+          countArray = Object.values(UserBookings).map((arr) => arr.length);
+
+          let count = 1;
+          for(let i = 0; i < countArray.length; i++){
+            labelName[i] = "user" + count;
+            count++;
+          }
+    
+          const obj1 = typeCounts;
+          const valuesArray1 = Object.values(obj1);
+
+          const obj2 = fuelTypeCounts;
+          const valuesArray2 = Object.values(obj2);
+
+          const obj3 = typeOfTransmissionCounts;
+          const valuesArray3 = Object.values(obj3);
+
+          const obj4 = locationCount;
+          const valuesArray4 = Object.values(obj4);
+
+          new Chart(document.getElementById("myChart1"), {
+            type: "polarArea",
+            data: {
+              labels: ["Ac-Automatic", "Manual Non Ac", "Non-AC"],
+              datasets: [
+                {
+                  label: "Type Of Car-1",
+                  backgroundColor: [
+                    "#3e95cd",
+                    "#8e5ea2",
+                    "#3cba9f",
+                    "#e8c3b9",
+                    "#c45850",
+                  ],
+                  data: valuesArray1,
+                },
+              ],
+            },
+            options: {
+              title: {
+                display: true,
+                text: "Type Of Car-1",
+              },
+            },
+          });
+
+          new Chart(document.getElementById("myChart2"), {
+            type: "polarArea",
+            data: {
+              labels: ["Gasoline", "Diesel", "Hybrid", "Electric"],
+              datasets: [
+                {
+                  label: "Type Of Car-2",
+                  backgroundColor: [
+                    "#3e95cd",
+                    "#8e5ea2",
+                    "#3cba9f",
+                    "#e8c3b9",
+                    "#c45850",
+                  ],
+                  data: valuesArray2,
+                },
+              ],
+            },
+            options: {
+              title: {
+                display: true,
+                text: "Type Of Car-2",
+              },
+            },
+          });
+
+          new Chart(document.getElementById("myChart3"), {
+            type: "polarArea",
+            data: {
+              labels: ["Manual", "Automatic"],
+              datasets: [
+                {
+                  label: "Type Of Car-3",
+                  backgroundColor: ["#3e95cd", "#8e5ea2"],
+                  data: valuesArray3,
+                },
+              ],
+            },
+            options: {
+              title: {
+                display: true,
+                text: "Type Of Car-3",
+              },
+            },
+          });
+
+          const xValues = ["Delhi-NCR", "Mumbai", "Kolkata", "Bangalore"];
+          const yValues = valuesArray4;
+          var barColors = ["red", "green", "blue", "orange",];
+
+          new Chart(document.getElementById("myChart4"), {
+            type: "bar",
+            data: {
+              labels: xValues,
+              datasets: [
+                {
+                  backgroundColor: barColors,
+                  data: yValues,
+                },
+              ],
+            },
+          });
+
+
+          new Chart(document.getElementById("myChart5"), {
+            type: "polarArea",
+            data: {
+              labels: labelName,
+              datasets: [
+                {
+                  label: "Type Of Car-3",
+                  backgroundColor: ["#3e95cd", "#8e5ea2"],
+                  data: countArray,
+                },
+              ],
+            },
+            options: {
+              title: {
+                display: true,
+                text: "Max User Booking",
+              },
+            },
+          });
+
+
+        };
+      };
+    </script>
+  </body>
+</html>

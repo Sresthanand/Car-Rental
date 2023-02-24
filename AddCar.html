@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+
+    <link rel="stylesheet" href="styles/AddCar.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="title">Add Your Car</div>
+      <div class="content">
+        <form
+          name="form"
+          id="form"
+          role="form"
+          autocomplete="off"
+          onsubmit="AddCar(event)"
+        >
+          <div class="user-details">
+            <div class="input-box">
+              <span class="details">Full Name</span>
+              <input
+                name="name"
+                id="name"
+                type="text"
+                placeholder="Enter your name"
+                req
+              />
+            </div>
+
+            <div class="input-box">
+              <span class="details">Email</span>
+              <input
+                name="email"
+                id="email"
+                type="text"
+                placeholder="Enter your email"
+                req
+              />
+            </div>
+            <div class="input-box">
+              <span class="details">Year</span>
+              <input
+                id="year"
+                name="year"
+                type="text"
+                placeholder="Enter Year"
+                req
+              />
+            </div>
+            <div class="input-box">
+              <span class="details">Name Of The Car</span>
+              <input
+                id="nameOfCar"
+                name="nameOfCar"
+                type="text"
+                placeholder="Enter the name of your car"
+                req
+              />
+            </div>
+            <div class="input-box">
+              <span class="details">Cost Per Day</span>
+              <input
+                id="cost"
+                name="cost"
+                type="text"
+                placeholder="Enter the cost"
+                req
+              />
+            </div>
+            <div class="input-box">
+              <span class="details">Number of Seater</span>
+              <input
+                id="numberOfSeats"
+                name="numberOfSeats"
+                type="text"
+                placeholder="Enter the cost"
+                req
+              />
+            </div>
+            <div class="input-box">
+              <span class="details">Type Of Car</span>
+              <input
+                id="typeOfCar"
+                name="typeOfCar"
+                type="text"
+                placeholder="Manual Or Automatic"
+                req
+              />
+            </div>
+            <div class="input-box">
+              <span class="details">Any Details</span>
+              <input
+                id="details"
+                name="details"
+                type="text"
+                placeholder="Enter the Details like comfort etc"
+                req
+              />
+            </div>
+
+      
+          </div>
+
+          <div class="button">
+            <input type="submit" value="Register" />
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="Indexdb.js"></script>
+    <script>
+      function AddCar(event) {
+        // console.log(db);
+        console.log("Hii");
+        event.preventDefault();
+
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
+        const year = document.getElementById("year").value;
+        const nameOfCar = document.getElementById("nameOfCar").value;
+        const numberOfSeats = document.getElementById("numberOfSeats").value;
+        const typeOfCar = document.getElementById("typeOfCar").value;
+        const details = document.getElementById("details").value;
+        const cost = document.getElementById("cost").value;
+        //const image = document.getElementById("image").value;
+
+        console.log("db will start from here");
+        let objectStoreForCars = db
+          .transaction("cars", "readwrite")
+          .objectStore("cars");
+        objectStoreForCars.add({
+          id: Date.now(),
+          Name: name,
+          Email: email,
+          Year: year,
+          CarName: nameOfCar,
+          NumberofSeatsInCar: numberOfSeats,
+          TypeOfCar: typeOfCar,
+          Details: details,
+          Cost: cost,
+        });
+
+        console.log("db set");
+        alert("congratulations! Your car has been added!!")
+        window.location.href = "Admin.html";
+      }
+    </script>
+  </body>
+</html>

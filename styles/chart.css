@@ -1,0 +1,47 @@
+@import url("https://fonts.googleapis.com/css?family=Cairo:400,700&subset=arabic");
+
+.bsdnote {
+  position: relative;
+  width: 30%;
+  padding: 1.2em 1.5em;
+  margin: 2em auto;
+  color: #fff;
+  background: #2ecc71;
+  overflow: hidden;
+  text-align: right;
+  font-family: "cairo", serif;
+}
+.bsdnote.orange {
+  background: #f39c12;
+}
+.bsdnote.softorange {
+  background: #f2784b;
+}
+.bsdnote.blue {
+  background: #3498db;
+}
+.bsdnote:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-width: 0 0 16px 16px;
+  border-style: solid;
+  border-color: #fff #27ae60 #27ae60 #fff;
+  background: #27ae60;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), -1px 1px 1px rgba(0, 0, 0, 0.2);
+  display: block;
+  width: 0;
+}
+.bsdnote.orange:before {
+  border-color: #fff #e67e22 #e67e22 #fff;
+  background: #e67e22;
+}
+.bsdnote.softorange:before {
+  border-color: #fff #de6e45 #de6e45 #fff;
+  background: #de6e45;
+}
+.bsdnote.blue:before {
+  border-color: #fff #2980b9 #2980b9 #fff;
+  background: #2980b9;
+}
